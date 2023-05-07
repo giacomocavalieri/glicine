@@ -1,3 +1,6 @@
+//// This module exposes some utility functions used by other glicine modules.
+////
+
 import gleam/string
 import gleam/list
 import gleam/result

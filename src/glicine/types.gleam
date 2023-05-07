@@ -1,3 +1,6 @@
+//// This module exposes all the main types used by other glicine modules.
+////
+
 import gleam/map.{Map}
 import gleam/erlang/file
 
@@ -62,6 +65,11 @@ pub type Reason {
   /// may occur in the step that converts posts to pages.
   ///
   PageGenerationStepFailed(reasons: List(PageGenerationError))
+
+  /// Occurs when, after the page generation step, there are two
+  /// or more pages with exactly the same name.
+  ///
+  ClashingPagesName(name: String)
 }
 
 /// An error that may occur while trying to read a file and convert
