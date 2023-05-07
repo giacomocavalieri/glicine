@@ -9,8 +9,16 @@ description = "A Gleam project"
 # repository = { type = "github", user = "username", repo = "project" }
 # links = [{ title = "Website", href = "https://gleam.run" }]
 
+internal_modules = [
+    "glicine/utils",
+    "glicine/utils/*",
+    "glicine/internals",
+    "glicine/internals/*",
+]
+
 [dependencies]
 gleam_stdlib = "~> 0.28"
+gleam_erlang = "~> 0.18"
 
 [dev-dependencies]
-gleeunit = "~> 0.10"
+glacier = "~> 0.8"
