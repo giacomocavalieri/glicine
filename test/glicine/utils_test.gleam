@@ -22,37 +22,31 @@ pub fn is_markdown_test() {
 }
 
 pub fn all_errors_test() {
-  // Empty list
   []
   |> utils.result_partition
   |> should.be_ok
   |> should.equal([])
 
-  // All Ok
   [Ok(1), Ok(2), Ok(3)]
   |> utils.result_partition
   |> should.be_ok
   |> should.equal([1, 2, 3])
 
-  // All Error
   [Error("a"), Error("b"), Error("c")]
   |> utils.result_partition
   |> should.be_error
   |> should.equal(["a", "b", "c"])
 
-  // First is Error
   [Error("a"), Ok(1), Ok(2)]
   |> utils.result_partition
   |> should.be_error
   |> should.equal(["a"])
 
-  // Last is Error
   [Ok(1), Ok(2), Error("a")]
   |> utils.result_partition
   |> should.be_error
   |> should.equal(["a"])
 
-  // Mixed Oks and Errors
   [Ok(1), Error("a"), Ok(2), Error("b"), Error("c")]
   |> utils.result_partition
   |> should.be_error
@@ -76,4 +70,22 @@ pub fn list_keep_test() {
     }
   })
   |> should.equal([1, 3])
+}
+
+pub fn duplicates_test() {
+  []
+  |> utils.duplicates
+  |> should.equal([])
+
+  [1, 2, 3, 4]
+  |> utils.duplicates
+  |> should.equal([])
+
+  [1, 2, 3, 2, 4]
+  |> utils.duplicates
+  |> should.equal([2])
+
+  [1, 1, 2, 1, 3, 4]
+  |> utils.duplicates
+  |> should.equal([1])
 }

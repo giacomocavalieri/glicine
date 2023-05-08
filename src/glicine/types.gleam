@@ -25,12 +25,11 @@ pub type Post {
   Post(name: String, metadata: Map(String, String), body: Html)
 }
 
-/// A blog page: it has an html `body` and a `name` that indicates
-/// the path -- inside the generated site directory -- where the page
-/// will be saved.
+/// A blog page: it has an html `body`, a `path` -- relative to the
+/// output directory -- where it will be saved, and a `name`.
 ///
 pub type Page {
-  Page(name: String, body: Html)
+  Page(path: String, name: String, body: Html)
 }
 
 /// A step of the page generation pipeline. It has a `name` used to
@@ -65,6 +64,16 @@ pub type Reason {
   /// may occur in the step that converts posts to pages.
   ///
   PageGenerationStepFailed(reasons: List(PageGenerationError))
+
+  /// Occurs during the page writing step when the creation of
+  /// a directory -- either the output directory or one of its
+  /// subdirectories -- fails.
+  ///
+  CannotCreateDirectory(directory: String, reason: file.Reason)
+
+  /// Occurs when a page cannot be written in the output directory.
+  ///
+  CannotWritePage(page: Page, reason: file.Reason)
 
   /// Occurs when, after the page generation step, there are two
   /// or more pages with exactly the same name.
@@ -109,4 +118,8 @@ pub type PageGenerationError {
   /// A generic error that may occur while trying to convert a post to a page.
   ///
   GenericError(generator: String, posts: List(Post), reason: String)
+
+  /// Occurs if one or more of the generated pages have exactly the same name.
+  ///
+  DuplicateNamesError(names: List(String))
 }

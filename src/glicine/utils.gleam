@@ -4,7 +4,11 @@
 import gleam/string
 import gleam/list
 import gleam/result
+import gleam/function
+import gleam/map
+import gleam/erlang/file
 import glicine/types.{Keep}
+import glicine/utils/path
 
 /// Like `list.filter` but uses a `filter` that returns `Keep` instead
 /// of a `Bool` value.
@@ -52,5 +56,46 @@ fn do_result_partition(
         Ok(_) -> do_result_partition(rest, Error([b]))
         Error(all_bs) -> do_result_partition(rest, Error([b, ..all_bs]))
       }
+  }
+}
+
+/// Given a list of elements returns a list containing only the
+/// elements that appear more than once
+///
+pub fn duplicates(in list: List(a)) -> List(a) {
+  let grouped = list.group(list, function.identity)
+  use acc, elem, duplicates <- map.fold(over: grouped, from: [])
+  case duplicates {
+    [] | [_] -> acc
+    [_, ..] -> [elem, ..acc]
+  }
+}
+
+/// Tries to create a directory and all missing parent directories.
+///
+pub fn write_file(path: String, content: String) -> Result(Nil, file.Reason) {
+  //|> list.scan(from: ".", with: add_to_path)
+  //|> io.debug
+  todo
+}
+
+/// Tries to create a directory and all missing parent directories.
+/// TODO: FIXME: currently only works with unix-style separator "/"
+///
+pub fn make_directory(path: String) -> Result(Nil, file.Reason) {
+  case string.split(path, on: "/") {
+    [] -> Error(file.Enoent)
+    [dir] -> file.make_directory(dir)
+    [base, ..dirs] ->
+      list.scan(dirs, from: base, with: path.concat)
+      |> list.try_map(try_make_directory)
+      |> result.replace(Nil)
+  }
+}
+
+fn try_make_directory(directory) -> Result(Nil, file.Reason) {
+  case file.is_directory(directory) {
+    True -> Ok(Nil)
+    False -> file.make_directory(directory)
   }
 }
