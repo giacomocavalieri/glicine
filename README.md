@@ -1,5 +1,5 @@
 
-![Glicine](glicine_logo.svg "Glicine")
+![Glicine](https://raw.githubusercontent.com/giacomocavalieri/glicine/main/glicine_logo.svg "Glicine")
 
 [![Package Version](https://img.shields.io/hexpm/v/glicine)](https://hex.pm/packages/glicine)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/glicine/)
