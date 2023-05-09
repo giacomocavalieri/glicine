@@ -10,6 +10,7 @@ import glicine/utils/path
 import gleam/list
 import gleam/result
 import gleam/erlang/file
+import gleam/io
 
 /// TODO: WIP
 /// It calls each generator with the provided list of posts and
@@ -58,9 +59,10 @@ fn write_page(page: Page, to output_directory: String) -> Result(Nil, Reason) {
   let page_file =
     full_path
     |> path.concat(page.name)
+    |> path.add_extension("html")
 
-  // Depending on the HTML library there should be a way to turn it into a string
-  file.write(to: page_file, contents: todo)
+  // TODO: Depending on the HTML library there should be a way to turn it into a string
+  file.write(to: page_file, contents: "todo")
   |> result.map_error(CannotWritePage(page, _))
 }
 
