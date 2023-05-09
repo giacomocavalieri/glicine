@@ -9,7 +9,6 @@ import gleam/map
 import gleam/erlang/file
 import glicine/types.{Keep}
 import glicine/utils/path
-import gleam/io
 
 /// Like `list.filter` but uses a `filter` that returns `Keep` instead
 /// of a `Bool` value.

@@ -10,7 +10,6 @@ import glicine/utils/path
 import gleam/list
 import gleam/result
 import gleam/erlang/file
-import gleam/io
 
 /// TODO: WIP
 /// It calls each generator with the provided list of posts and
