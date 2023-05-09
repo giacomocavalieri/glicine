@@ -1,4 +1,7 @@
-import glicine/types.{Page, PageGenerator, Post}
+import glicine/types.{
+  CannotCreateDirectory, CannotListDirectory, CannotWritePage, InvalidPosts,
+  Page, PageGenerationStepFailed, PageGenerator, Post, Reason,
+}
 import glicine/utils
 import glicine/utils/report/style
 import gleam/io
@@ -6,6 +9,8 @@ import gleam/list
 import gleam/int
 import gleam/string_builder.{StringBuilder} as sb
 import gleam_community/ansi
+import gleam/erlang/file
+import gleam/string
 
 pub fn introduction() -> Nil {
   "\n✼ ✿ Glicine ✿ ✼"
@@ -121,4 +126,69 @@ pub fn completion() -> Nil {
   "site generation completed\n"
   |> style.success
   |> io.println
+}
+
+pub fn error(reason: Reason) -> Nil {
+  "\n✗ " <> reason_to_string(reason)
+  |> ansi.red
+  |> io.println
+}
+
+fn reason_to_string(reason: Reason) -> String {
+  case reason {
+    CannotListDirectory(directory, reason) ->
+      sb.new()
+      |> sb.append("I cannot read the posts in ")
+      |> sb.append(style.path(directory))
+      |> sb.append(" ")
+      |> sb.append(list_directory_reason_to_string(reason))
+      |> sb.to_string
+    CannotCreateDirectory(directory, reason) ->
+      sb.new()
+      |> sb.append("I cannot create the ")
+      |> sb.append(style.path(directory))
+      |> sb.append(" directory needed by one of the pages ")
+      |> sb.append(create_directory_reason_to_string(reason))
+      |> sb.to_string
+    CannotWritePage(page, reason) ->
+      sb.new()
+      |> sb.append("I cannot write the page ")
+      |> sb.append(ansi.bold(page.name))
+      |> sb.append(" to ")
+      |> sb.append(style.path(page.path))
+      |> sb.append(" ")
+      |> sb.append(write_page_reason_to_string(reason))
+      |> sb.to_string
+    InvalidPosts(reasons) -> todo("invalid posts")
+    PageGenerationStepFailed(reasons) -> todo("page generation step fail")
+  }
+}
+
+fn list_directory_reason_to_string(reason: file.Reason) -> String {
+  case reason {
+    file.Enoent -> "because it doesn't exists"
+    file.Eacces -> "because I don't have the needed permission"
+    file.Enotdir -> "because it is not a directory"
+    _ -> default_reason_error(reason)
+  }
+}
+
+fn create_directory_reason_to_string(reason: file.Reason) -> String {
+  case reason {
+    file.Eacces -> "because I don't have the needed permission"
+    file.Enoent -> "because it has an invalid name"
+    _ -> default_reason_error(reason)
+  }
+}
+
+fn write_page_reason_to_string(reason: file.Reason) -> String {
+  default_reason_error(reason)
+}
+
+fn default_reason_error(reason: file.Reason) -> String {
+  sb.new()
+  |> sb.append("because of an unexpected error (")
+  |> sb.append(string.inspect(reason))
+  |> sb.append(")")
+  |> sb.to_string
 }
