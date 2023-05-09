@@ -9,6 +9,7 @@ import gleam/map
 import gleam/erlang/file
 import glicine/types.{Keep}
 import glicine/utils/path
+import gleam/io
 
 /// Like `list.filter` but uses a `filter` that returns `Keep` instead
 /// of a `Bool` value.
@@ -72,24 +73,16 @@ pub fn duplicates(in list: List(a)) -> List(a) {
 }
 
 /// Tries to create a directory and all missing parent directories.
-///
-pub fn write_file(path: String, content: String) -> Result(Nil, file.Reason) {
-  //|> list.scan(from: ".", with: add_to_path)
-  //|> io.debug
-  todo
-}
-
-/// Tries to create a directory and all missing parent directories.
 /// TODO: FIXME: currently only works with unix-style separator "/"
 ///
 pub fn make_directory(path: String) -> Result(Nil, file.Reason) {
   case string.split(path, on: "/") {
     [] -> Error(file.Enoent)
-    [dir] -> file.make_directory(dir)
-    [base, ..dirs] ->
-      list.scan(dirs, from: base, with: path.concat)
+    [base, ..dirs] -> {
+      [base, ..list.scan(dirs, from: base, with: path.concat)]
       |> list.try_map(try_make_directory)
       |> result.replace(Nil)
+    }
   }
 }
 
@@ -107,6 +100,15 @@ pub fn if_ok_do(result: Result(a, e), action: fn(a) -> Nil) -> Result(a, e) {
   use a <- result.map(result)
   action(a)
   a
+}
+
+/// Perform a side effect if the result is `Error` and leave it unchanged.
+/// Useful to perform reporting in a pipeline of results.
+///
+pub fn if_error_do(result: Result(a, e), action: fn(e) -> Nil) -> Result(a, e) {
+  use e <- result.map_error(result)
+  action(e)
+  e
 }
 
 /// Used to select the plural or singular form based on a number.
