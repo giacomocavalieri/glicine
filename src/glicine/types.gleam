@@ -74,11 +74,6 @@ pub type Reason {
   /// Occurs when a page cannot be written in the output directory.
   ///
   CannotWritePage(page: Page, reason: file.Reason)
-
-  /// Occurs when, after the page generation step, there are two
-  /// or more pages with exactly the same name.
-  ///
-  ClashingPagesName(name: String)
 }
 
 /// An error that may occur while trying to read a file and convert
