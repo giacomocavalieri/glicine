@@ -1,17 +1,16 @@
 import glicine/pages
 import glicine/posts
-import glicine/types.{HtmlPlaceholder, Keep, Page, PageGenerator, Post}
+import glicine/types.{HtmlPlaceholder, Keep, Page, PageGenerator, Post, Reason}
 import glicine/utils
 import glicine/utils/report
 import gleam/result
-import gleam/function
 
 pub fn generate(
   posts_directory: String,
   output_directory: String,
   filter: fn(Post) -> Keep,
   generators: List(PageGenerator),
-) -> Nil {
+) -> Result(Nil, Reason) {
   report.introduction()
   report.reading_posts(from: posts_directory)
   posts.read(posts_directory)
@@ -25,7 +24,6 @@ pub fn generate(
   |> result.then(pages.write(_, to: output_directory))
   |> utils.if_ok_do(fn(_) { report.completion() })
   |> utils.if_error_do(report.error)
-  |> function.constant(Nil)
   // |> in case an error occurs delete the output directory
 }
 
@@ -33,7 +31,13 @@ pub fn main() {
   let filter = fn(_) { Keep }
   let generators = [
     PageGenerator(
-      "Empty1",
+      "Dummy1",
+      fn(_) {
+        Ok([Page(name: "hello", path: "posts/new", body: HtmlPlaceholder)])
+      },
+    ),
+    PageGenerator(
+      "Dummy2",
       fn(_) {
         Ok([Page(name: "hello", path: "posts/new", body: HtmlPlaceholder)])
       },
