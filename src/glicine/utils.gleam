@@ -99,3 +99,21 @@ fn try_make_directory(directory) -> Result(Nil, file.Reason) {
     False -> file.make_directory(directory)
   }
 }
+
+/// Perform a side effect if the result is `Ok` and leave it unchanged.
+/// Useful to perform reporting in a pipeline of results.
+///
+pub fn if_ok_do(result: Result(a, e), action: fn(a) -> Nil) -> Result(a, e) {
+  use a <- result.map(result)
+  action(a)
+  a
+}
+
+/// Used to select the plural or singular form based on a number.
+///
+pub fn pick_form(n: Int, singular: String, plural: String) -> String {
+  case n {
+    1 -> singular
+    _ -> plural
+  }
+}
