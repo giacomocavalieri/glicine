@@ -6,10 +6,10 @@ import glicine/utils/report
 import gleam/result
 
 pub fn generate(
-  posts_directory: String,
-  output_directory: String,
-  filter: fn(Post) -> Keep,
-  generators: List(PageGenerator),
+  from posts_directory: String,
+  to output_directory: String,
+  filtering filter: fn(Post) -> Keep,
+  with generators: List(PageGenerator),
 ) -> Result(Nil, Reason) {
   report.introduction()
   report.reading_posts(from: posts_directory)
