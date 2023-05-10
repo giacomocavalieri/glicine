@@ -7,7 +7,7 @@ pub fn title(string: String) -> String {
 }
 
 pub fn code(string: String) -> String {
-  string
+  "`" <> string <> "`"
   |> ansi.dim
 }
 
@@ -25,4 +25,9 @@ pub fn success(string: String) -> String {
 pub fn step_report(report: String) -> String {
   "\n" <> report
   |> ansi.italic
+}
+
+pub fn name(string: String) -> String {
+  "\"" <> string <> "\""
+  |> ansi.bold
 }

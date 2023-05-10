@@ -87,12 +87,12 @@ pub type FileToPostError {
   /// Occurs if the file's frontmatter doesn't contain valid YAML.
   /// TODO: depending on the library used, it should wrap the decoding error.
   ///
-  InvalidMetadata
+  InvalidMetadata(file: String)
 
   /// Occurs if the file's content is not valid Markdown.
   /// TODO: depending on the library used, it should wrap the decoding error.
   ///
-  InvalidMarkdown
+  InvalidMarkdown(file: String)
 }
 
 /// An error that may occur while trying to convert a post to a page.
@@ -108,7 +108,7 @@ pub type PageGenerationError {
   /// TODO: maybe the value of metadata should be a dynamic and this error
   ///       could contain the dynamic decoding error.
   ///
-  WrongMetadataFormat(generator: String, post: Post)
+  WrongMetadataFormat(generator: String, post: Post, key: String)
 
   /// A generic error that may occur while trying to convert a post to a page.
   ///
