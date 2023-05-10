@@ -2,8 +2,8 @@ import glacier
 import glacier/should
 import glicine
 import glicine/types.{
-  CannotCreateDirectory, CannotListDirectory, Drop, HtmlPlaceholder, Keep, Page,
-  PageGenerationStepFailed, PageGenerator,
+  CannotCreateDirectory, CannotListDirectory, HtmlPlaceholder, Keep, Page,
+  PageGenerator,
 }
 import gleam/erlang/file
 import gleam/result

@@ -5,7 +5,6 @@ import gleam/io
 import gleam/list
 import gleam/int
 import gleam/string_builder.{StringBuilder} as sb
-import gleam_community/ansi
 import glicine/utils/report/reason
 
 pub fn introduction() -> Nil {
@@ -57,6 +56,7 @@ pub fn generating_pages(generators: List(PageGenerator)) -> Nil {
   let generators_list =
     generators
     |> list.map(fn(generator) { generator.name })
+    |> list.map(style.name)
     |> list.map(sb.from_string)
     |> sb.join(", ")
 
@@ -64,7 +64,7 @@ pub fn generating_pages(generators: List(PageGenerator)) -> Nil {
     0 ->
       zero_generators_warning()
       |> sb.to_string
-      |> ansi.yellow
+      |> style.warning
     _ ->
       sb.new()
       |> sb.append("Now I'm generating the blog pages using ")
@@ -125,7 +125,8 @@ pub fn completion() -> Nil {
 }
 
 pub fn error(reason: Reason) -> Nil {
-  "\n✗ " <> reason.to_string(reason)
-  |> ansi.red
+  reason.to_string(reason)
+  |> style.step_report
+  |> style.error
   |> io.println
 }

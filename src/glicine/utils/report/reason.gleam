@@ -74,16 +74,16 @@ fn invalid_posts(reasons: List(FileToPostError)) -> StringBuilder {
   |> sb.append("I had a problem with ")
   |> sb.append(utils.pick_form(list.length(reasons), "a file", "multiple files"))
   |> sb.append(":\n")
-  |> sb.append_builder(make_list(reasons, file_post_error))
+  |> sb.append_builder(error_list(reasons, file_post_error))
 }
 
-fn make_list(
+fn error_list(
   from list: List(a),
   with fun: fn(a) -> StringBuilder,
 ) -> StringBuilder {
   list
   |> list.map(fun)
-  |> list.map(sb.prepend(_, "- "))
+  |> list.map(sb.prepend(_, "✗ "))
   |> sb.join(with: "\n")
 }
 
@@ -118,7 +118,7 @@ fn page_generation_step_failed(
     "some problems",
   ))
   |> sb.append(" while generating the blog pages:\n")
-  |> sb.append_builder(make_list(reasons, page_generation_error))
+  |> sb.append_builder(error_list(reasons, page_generation_error))
 }
 
 fn page_generation_error(error: PageGenerationError) -> StringBuilder {

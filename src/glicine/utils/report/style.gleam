@@ -4,6 +4,7 @@ pub fn title(string: String) -> String {
   string
   |> ansi.magenta
   |> ansi.bold
+  |> ansi.italic
 }
 
 pub fn code(string: String) -> String {
@@ -24,10 +25,19 @@ pub fn success(string: String) -> String {
 
 pub fn step_report(report: String) -> String {
   "\n" <> report
-  |> ansi.italic
 }
 
 pub fn name(string: String) -> String {
   "\"" <> string <> "\""
   |> ansi.bold
+}
+
+pub fn warning(string: String) -> String {
+  string
+  |> ansi.yellow
+}
+
+pub fn error(string: String) -> String {
+  string
+  |> ansi.red
 }
