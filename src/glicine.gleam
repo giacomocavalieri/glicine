@@ -14,14 +14,26 @@ pub fn generate(
   report.introduction()
   report.reading_posts(from: posts_directory)
   posts.read(posts_directory)
-  |> utils.if_ok_do(report.read_posts)
+  |> if_ok_do(report.read_posts)
   |> result.map(utils.list_keep(_, with: filter))
-  |> utils.if_ok_do(report.filtered_posts)
-  |> utils.if_ok_do(fn(_) { report.generating_pages(generators) })
+  |> if_ok_do(report.filtered_posts)
+  |> if_ok_do(fn(_) { report.generating_pages(generators) })
   |> result.try(pages.from_posts(_, with: generators))
-  |> utils.if_ok_do(report.generated_pages)
-  |> utils.if_ok_do(fn(_) { report.writing_pages(output_directory) })
+  |> if_ok_do(report.generated_pages)
+  |> if_ok_do(fn(_) { report.writing_pages(output_directory) })
   |> result.try(pages.write(_, to: output_directory))
-  |> utils.if_ok_do(fn(_) { report.completion() })
-  |> utils.if_error_do(report.error)
+  |> if_ok_do(fn(_) { report.completion() })
+  |> if_error_do(report.error)
+}
+
+fn if_ok_do(result: Result(a, e), action: fn(a) -> Nil) -> Result(a, e) {
+  use a <- result.map(result)
+  action(a)
+  a
+}
+
+fn if_error_do(result: Result(a, e), action: fn(e) -> Nil) -> Result(a, e) {
+  use e <- result.map_error(result)
+  action(e)
+  e
 }
