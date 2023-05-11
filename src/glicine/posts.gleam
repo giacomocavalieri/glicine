@@ -37,7 +37,7 @@ pub fn read(in directory: String) -> Result(List(Post), Reason) {
   |> file.list_directory
   |> result.map_error(CannotListDirectory(directory, _))
   |> result.map(list.filter(_, utils.is_markdown))
-  |> result.then(files_to_posts)
+  |> result.try(files_to_posts)
 }
 
 fn files_to_posts(files: List(String)) -> Result(List(Post), Reason) {

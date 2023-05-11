@@ -31,10 +31,10 @@ fn with_temp_directories(
 ) -> Result(Nil, file.Reason) {
   let site_dir = "site_temp"
   let posts_dir = "posts_temp"
-  use _ <- result.then(utils.make_directory(posts_dir))
-  use _ <- result.then(utils.make_directory(site_dir))
+  use _ <- result.try(utils.make_directory(posts_dir))
+  use _ <- result.try(utils.make_directory(site_dir))
   let assertion = do(posts_dir, site_dir)
-  use _ <- result.then(file.recursive_delete(posts_dir))
+  use _ <- result.try(file.recursive_delete(posts_dir))
   use _ <- result.map(file.recursive_delete(site_dir))
   assertion()
 }

@@ -24,7 +24,7 @@ pub fn from_posts(
   |> utils.result_partition
   |> result.map(list.flatten)
   |> result.map_error(PageGenerationStepFailed)
-  |> result.then(check_duplicate_names)
+  |> result.try(check_duplicate_names)
 }
 
 fn check_duplicate_names(pages: List(Page)) -> Result(List(Page), Reason) {
@@ -54,7 +54,7 @@ pub fn write(
 }
 
 fn write_page(page: Page, to output_directory: String) -> Result(Nil, Reason) {
-  use full_path <- result.then(make_page_directory(page, output_directory))
+  use full_path <- result.try(make_page_directory(page, output_directory))
   let page_file =
     full_path
     |> path.concat(page.name)

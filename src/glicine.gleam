@@ -18,10 +18,10 @@ pub fn generate(
   |> result.map(utils.list_keep(_, with: filter))
   |> utils.if_ok_do(report.filtered_posts)
   |> utils.if_ok_do(fn(_) { report.generating_pages(generators) })
-  |> result.then(pages.from_posts(_, with: generators))
+  |> result.try(pages.from_posts(_, with: generators))
   |> utils.if_ok_do(report.generated_pages)
   |> utils.if_ok_do(fn(_) { report.writing_pages(output_directory) })
-  |> result.then(pages.write(_, to: output_directory))
+  |> result.try(pages.write(_, to: output_directory))
   |> utils.if_ok_do(fn(_) { report.completion() })
   |> utils.if_error_do(report.error)
 }
