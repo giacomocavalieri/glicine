@@ -1,9 +1,8 @@
-//// This module exposes some utility functions used to work with unix-like
-//// paths.
+//// This module exposes some utility functions used to work with unix-like paths.
 ////
 
-import gleam/string
 import gleam/bool.{guard}
+import gleam/string
 
 /// Used to concatenate two strings in a unix-style path.
 /// Ignores any string that is empty or only made of whitespace.
@@ -42,4 +41,10 @@ pub fn add_extension(file: String, extension: String) -> String {
   }
   use <- guard(when: string.ends_with(file, cleaned_extension), return: file)
   file <> cleaned_extension
+}
+
+/// Tests if a file name has the `.md` extension.
+///
+pub fn has_extension(file: String, extension: String) -> Bool {
+  string.ends_with(file, extension)
 }

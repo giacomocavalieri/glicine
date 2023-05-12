@@ -1,4 +1,4 @@
-import glicine/utils/path
+import glicine/extra/path
 import glacier/should
 
 pub fn concat_test() {
