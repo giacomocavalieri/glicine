@@ -94,22 +94,33 @@ pub fn error_to_string_builder(error: PageGenerationError) -> StringBuilder {
       |> sb.append(" post")
 
     GenericError(generator, posts, reason) -> {
-      let posts_builder =
-        posts
-        |> list.map(fn(post) { post.name })
-        |> list.map(style.name)
-        |> list.map(sb.from_string)
-        |> sb.join(", ")
+      case list.length(posts) {
+        0 ->
+          sb.new()
+          |> sb.append("the ")
+          |> sb.append(style.name(generator))
+          |> sb.append(" generator failed with the following reason: ")
+          |> sb.append(reason)
 
-      sb.new()
-      |> sb.append("the ")
-      |> sb.append(style.name(generator))
-      |> sb.append(" generator had a problem with the ")
-      |> sb.append_builder(posts_builder)
-      |> sb.append(" ")
-      |> sb.append(string_extra.pick_form(list.length(posts), "post", "posts"))
-      |> sb.append(": ")
-      |> sb.append(reason)
+        n -> {
+          let posts_builder =
+            posts
+            |> list.map(fn(post) { post.name })
+            |> list.map(style.name)
+            |> list.map(sb.from_string)
+            |> sb.join(", ")
+
+          sb.new()
+          |> sb.append("the ")
+          |> sb.append(style.name(generator))
+          |> sb.append(" generator had a problem with the ")
+          |> sb.append_builder(posts_builder)
+          |> sb.append(" ")
+          |> sb.append(string_extra.pick_form(n, "post", "posts"))
+          |> sb.append(": ")
+          |> sb.append(reason)
+        }
+      }
     }
 
     CannotSavePage(page, reason) ->
@@ -148,7 +159,7 @@ pub fn from_posts(
   |> result.map(list.flatten)
 }
 
-// TODO this doesn't belong here, it should be at a higher step!
+// TODO: this doesn't belong here, it should be at a higher step!
 // fn check_duplicate_names(pages: List(Page)) -> Result(List(Page), Reason) {
 //   let duplicated_names =
 //     pages

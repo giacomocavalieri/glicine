@@ -4,13 +4,16 @@
 import gleam/int
 import gleam/io
 import gleam/list
+import gleam/result
 import gleam/string_builder.{StringBuilder} as sb
 import glicine/extra/list.{Keep} as list_extra
+import glicine/extra/path
 import glicine/extra/result as result_extra
 import glicine/extra/string as string_extra
 import glicine/extra/style
 import glicine/page.{Page, PageGenerationError, PageGenerator}
 import glicine/post.{Post, PostGenerationError}
+import nakai/html
 
 /// The reason why one of the blog generation steps may fail.
 ///
@@ -24,59 +27,66 @@ pub type GlicinePipelineError {
   /// may occur in the step that converts posts to pages.
   ///
   PagesGenerationStepFailed(reasons: List(PageGenerationError))
+
+  /// Occurs if, two or more of the generated pages, share the
+  /// same name and path. It is reported as an error and stops the
+  /// site generation since one page would overwrite the other
+  /// depending on which one is saved first.
+  ///
+  DuplicatePagesNames(duplicate_names: List(String))
 }
 
-pub fn generate(
+pub fn make_site(
   from posts_directory: String,
   to output_directory: String,
   filtering filter: fn(Post) -> Keep,
   with generators: List(PageGenerator),
 ) -> Result(Nil, GlicinePipelineError) {
   use <- result_extra.on_error(do: report_error)
-
   report_introduction()
-
-  report_reading_posts(from: posts_directory)
   use all_posts <- result_extra.try(
     post.read_all(posts_directory),
     map_error: PostsGenerationStepFailed,
   )
-  report_read_posts(all_posts)
-
+  report_read_posts(all_posts, posts_directory)
   let posts = list_extra.keep(all_posts, with: filter)
   report_filtered_posts(posts)
-
-  report_generating_pages(generators)
   use pages <- result_extra.try(
     page.from_posts(posts, with: generators),
     map_error: PagesGenerationStepFailed,
   )
-  report_generated_pages(pages)
-  // TODO: check for duplicate names
-
-  report_writing_pages(output_directory)
+  report_generated_pages(pages, generators)
+  use _ <- result.try(check_duplicate_names(pages))
   use _ <- result_extra.try(
     page.write_all(pages, to: output_directory),
     map_error: PagesGenerationStepFailed,
   )
-
-  report_completion()
+  report_completion(output_directory)
   Ok(Nil)
 }
 
+fn check_duplicate_names(pages: List(Page)) -> Result(Nil, GlicinePipelineError) {
+  let duplicate_names =
+    pages
+    |> list.map(fn(page) {
+      page.path
+      |> path.concat(page.name)
+    })
+    |> list_extra.duplicates
+
+  case duplicate_names {
+    [] -> Ok(Nil)
+    _ -> Error(DuplicatePagesNames(duplicate_names))
+  }
+}
+
 fn report_introduction() -> Nil {
-  "\n✼ ✿ Glicine ✿ ✼"
+  "\n✼ ✿ Glicine ✿ ✼\n"
   |> style.title
   |> io.println
 }
 
-fn report_reading_posts(from directory: String) -> Nil {
-  "I'm reading markdown posts from the directory " <> style.path(directory)
-  |> style.step_report
-  |> io.println
-}
-
-fn report_read_posts(posts: List(Post)) -> Nil {
+fn report_read_posts(posts: List(Post), from: String) -> Nil {
   let posts_count =
     posts
     |> list.length
@@ -85,7 +95,8 @@ fn report_read_posts(posts: List(Post)) -> Nil {
   |> sb.append(int.to_string(posts_count))
   |> sb.append(" ")
   |> sb.append(string_extra.pick_form(posts_count, "post", "posts"))
-  |> sb.append(" found")
+  |> sb.append(" found in directory ")
+  |> sb.append(style.path(from))
   |> sb.to_string
   |> style.success
   |> io.println
@@ -106,73 +117,36 @@ fn report_filtered_posts(posts: List(Post)) -> Nil {
   |> io.println
 }
 
-fn report_generating_pages(generators: List(PageGenerator)) -> Nil {
-  let generators_count =
-    generators
-    |> list.length
-  let generators_list =
-    generators
-    |> list.map(fn(generator) { generator.name })
-    |> list.map(style.name)
-    |> list.map(sb.from_string)
-    |> sb.join(", ")
-
-  case generators_count {
-    0 ->
-      sb.new()
-      |> sb.append("\nLooks like there's no generators, ")
-      |> sb.append("I won't be able to generate any page!\n")
-      |> sb.append("Maybe you forgot to add your generators to ")
-      |> sb.append("the ")
-      |> sb.append(style.code("`glicine.generate`"))
-      |> sb.append(" call?\n")
-      |> sb.append("If you feel lost, you can read more ")
-      |> sb.append("about defining and using generators\n")
-      |> sb.append("at this link: TODO")
-      |> sb.to_string
-      |> style.warning
-    _ ->
-      sb.new()
-      |> sb.append("Now I'm generating the blog pages using ")
-      |> sb.append(string_extra.pick_form(
-        generators_count,
-        "this generator",
-        "these generators",
-      ))
-      |> sb.append(":\n")
-      |> sb.append_builder(generators_list)
-      |> sb.to_string
-      |> style.step_report
-  }
-  |> io.println
-}
-
-fn report_generated_pages(pages: List(Page)) -> Nil {
-  let pages_count =
-    pages
-    |> list.length
+fn report_generated_pages(
+  pages: List(Page),
+  generators: List(PageGenerator),
+) -> Nil {
+  let pages_count = list.length(pages)
+  let generators_count = list.length(generators)
 
   sb.new()
   |> sb.append(int.to_string(pages_count))
   |> sb.append(" ")
   |> sb.append(string_extra.pick_form(pages_count, "page", "pages"))
-  |> sb.append(" generated")
+  |> sb.append(" generated by ")
+  |> sb.append(int.to_string(generators_count))
+  |> sb.append(" ")
+  |> sb.append(string_extra.pick_form(
+    generators_count,
+    "generator",
+    "generators",
+  ))
   |> sb.to_string
   |> style.success
   |> io.println
 }
 
-fn report_writing_pages(to directory: String) -> Nil {
+fn report_completion(to: String) -> Nil {
   sb.new()
-  |> sb.append("Now I'm writing the pages in the directory ")
-  |> sb.append(style.path(directory))
+  |> sb.append("site generated in directory ")
+  |> sb.append(style.path(to))
+  |> sb.append("\n")
   |> sb.to_string
-  |> style.step_report
-  |> io.println
-}
-
-fn report_completion() -> Nil {
-  "site generation completed\n"
   |> style.success
   |> io.println
 }
@@ -180,31 +154,32 @@ fn report_completion() -> Nil {
 fn report_error(error: GlicinePipelineError) -> Nil {
   case error {
     PostsGenerationStepFailed(reasons) ->
-      sb.new()
-      |> sb.append("I had a problem with ")
-      |> sb.append(string_extra.pick_form(
-        list.length(reasons),
-        "a file",
-        "multiple files",
-      ))
-      |> sb.append(":\n")
-      |> sb.append_builder(error_list(reasons, post.error_to_string_builder))
-      |> sb.to_string
-      |> io.println
-
+      error_list(reasons, post.error_to_string_builder)
     PagesGenerationStepFailed(reasons) ->
+      error_list(reasons, page.error_to_string_builder)
+    DuplicatePagesNames(duplicate_names) -> {
       sb.new()
-      |> sb.append("I had ")
+      |> sb.append("✗ there were pages with the same ")
       |> sb.append(string_extra.pick_form(
-        list.length(reasons),
-        "a problem",
-        "some problems",
+        list.length(duplicate_names),
+        "name",
+        "names",
       ))
-      |> sb.append(" while generating the blog pages:\n")
-      |> sb.append_builder(error_list(reasons, page.error_to_string_builder))
-      |> sb.to_string
-      |> io.println
+      |> sb.append(": ")
+      |> sb.append_builder(
+        duplicate_names
+        |> list.map(style.name)
+        |> list.map(sb.from_string)
+        |> sb.join(", "),
+      )
+      |> sb.append("\nEach page should have a unique name so that they do not ")
+      |> sb.append("overwrite each other")
+    }
   }
+  |> sb.append("\n")
+  |> sb.to_string
+  |> style.error
+  |> io.println
 }
 
 fn error_list(
@@ -215,4 +190,25 @@ fn error_list(
   |> list.map(fun)
   |> list.map(sb.prepend(_, "✗ "))
   |> sb.join(with: "\n")
+}
+
+pub fn main() {
+  make_site(
+    from: ".",
+    to: "site",
+    filtering: fn(_) { Keep },
+    with: [
+      PageGenerator(
+        name: "TestGenerator",
+        generator: fn(_) {
+          Ok([
+            Page(name: "page1", path: "pages", body: html.p_text([], "hell!")),
+            Page(name: "page1", path: "pages", body: html.Nothing),
+            Page(name: "page2", path: "page", body: html.p_text([], "hell!")),
+            Page(name: "page2", path: "page", body: html.Nothing),
+          ])
+        },
+      ),
+    ],
+  )
 }

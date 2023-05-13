@@ -40,13 +40,13 @@ fn with_temp_directories(
 }
 
 pub fn invalid_post_directory_test() {
-  glicine.generate(from: "", to: "", filtering: keep_all, with: [])
+  glicine.make_site(from: "", to: "", filtering: keep_all, with: [])
   |> should.be_error
   |> should.equal(PostsGenerationStepFailed([
     CannotListPostsDirectory("", file.Enoent),
   ]))
 
-  glicine.generate(from: "nodir", to: "", filtering: keep_all, with: [])
+  glicine.make_site(from: "nodir", to: "", filtering: keep_all, with: [])
   |> should.be_error
   |> should.equal(PostsGenerationStepFailed([
     CannotListPostsDirectory("nodir", file.Enoent),
@@ -54,7 +54,7 @@ pub fn invalid_post_directory_test() {
 }
 
 pub fn invalid_site_directory_test() {
-  glicine.generate(
+  glicine.make_site(
     from: ".",
     to: "",
     filtering: keep_all,
@@ -70,7 +70,7 @@ pub fn invalid_site_directory_test() {
 
 pub fn one_page_test() {
   use posts_dir, site_dir <- with_temp_directories
-  glicine.generate(
+  glicine.make_site(
     from: posts_dir,
     to: site_dir,
     filtering: keep_all,
@@ -89,7 +89,12 @@ pub fn one_page_test() {
 
 pub fn zero_pages_test() {
   use posts_dir, site_dir <- with_temp_directories
-  glicine.generate(from: posts_dir, to: site_dir, filtering: keep_all, with: [])
+  glicine.make_site(
+    from: posts_dir,
+    to: site_dir,
+    filtering: keep_all,
+    with: [],
+  )
   |> should.be_ok
 
   let files = file.list_directory(site_dir)
