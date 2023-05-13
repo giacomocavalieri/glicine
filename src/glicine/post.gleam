@@ -15,15 +15,15 @@ import gleam/string_builder.{StringBuilder} as sb
 import glicine/extra/path
 import glicine/extra/result as result_extra
 import glicine/extra/style
-import glicine/html.{Html, HtmlPlaceholder}
 import glicine/report
+import nakai/html
 
 /// A blog post: it has a `name` (tipically it is the name of the file
 /// from which the post's body was read), an Html `body` and additional
 /// metadata in the form of a map of strings.
 ///
 pub type Post {
-  Post(name: String, metadata: Map(String, String), body: Html)
+  Post(name: String, metadata: Map(String, String), body: html.Node(Nil))
 }
 
 /// An error that may occur while trying to read a file and convert
@@ -124,6 +124,6 @@ fn file_to_post(file: String) -> Result(Post, PostGenerationError) {
   // Read file content   (cannot open file)
   // Extract metadata    (invalid metadata)
   // markdown -> HTML    (invalid markdown)
-  Post(name: name, metadata: map.new(), body: HtmlPlaceholder)
+  Post(name: name, metadata: map.new(), body: html.Nothing)
   |> Ok
 }

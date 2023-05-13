@@ -20,6 +20,7 @@ internal_modules = [
 gleam_stdlib = "~> 0.28"
 gleam_erlang = "~> 0.18"
 gleam_community_ansi = "~> 1.1"
+nakai = "~> 0.6"
 
 [dev-dependencies]
 glacier = "~> 0.8"

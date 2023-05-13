@@ -10,15 +10,16 @@ import glicine/extra/path
 import glicine/extra/result as result_extra
 import glicine/extra/string as string_extra
 import glicine/extra/style
-import glicine/html.{Html}
 import glicine/post.{Post}
 import glicine/report
+import nakai
+import nakai/html
 
 /// A blog page: it has an html `body`, a `path` -- relative to the
 /// output directory -- where it will be saved, and a `name`.
 ///
 pub type Page {
-  Page(path: String, name: String, body: Html)
+  Page(path: String, name: String, body: html.Node(Nil))
 }
 
 /// A step of the page generation pipeline. It has a `name` used to
@@ -194,6 +195,6 @@ fn write_page(
   )
 
   // TODO: Depending on the HTML library there should be a way to turn it into a string
-  file.write(to: page_file, contents: "todo")
+  file.write(to: page_file, contents: nakai.to_string(page.body))
   |> result.map_error(CannotSavePage(page, _))
 }

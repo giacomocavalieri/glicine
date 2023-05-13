@@ -1,13 +1,13 @@
 import glacier
 import glacier/should
+import gleam/erlang/file
+import gleam/result
 import glicine.{PostsGenerationStepFailed}
 import glicine/extra/list.{Keep} as list_extra
 import glicine/extra/directory
-import glicine/post.{CannotListPostsDirectory}
 import glicine/page.{Page, PageGenerator}
-import glicine/html.{HtmlPlaceholder}
-import gleam/erlang/file
-import gleam/result
+import glicine/post.{CannotListPostsDirectory}
+import nakai/html
 
 pub fn main() {
   glacier.main()
@@ -17,7 +17,7 @@ fn singleton_generator(page_name: String) {
   PageGenerator(
     name: "const",
     generator: fn(_) {
-      Ok([Page(name: page_name, path: ".", body: HtmlPlaceholder)])
+      Ok([Page(name: page_name, path: ".", body: html.Nothing)])
     },
   )
 }
