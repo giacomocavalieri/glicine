@@ -192,22 +192,3 @@ fn error_list(
   |> list.map(sb.prepend(_, "✗ "))
   |> sb.join(with: "\n")
 }
-
-pub fn main() {
-  make_site(
-    from: ".",
-    to: "site",
-    filtering: fn(_) { Keep },
-    with: [
-      PageGenerator(
-        name: "TestGenerator",
-        generator: fn(_) {
-          Ok([
-            Page(name: "page1", path: "pages", body: html.p_text([], "hello!")),
-            Page(name: "page2", path: "pages", body: html.p_text([], "hello!")),
-          ])
-        },
-      ),
-    ],
-  )
-}

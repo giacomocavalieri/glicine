@@ -13,6 +13,9 @@ pub fn main() {
   glacier.main()
 }
 
+// TODO: these tests are a bit messym I should find a better way to 
+// perform setup and cleanup of system directories
+
 fn singleton_generator(page_name: String) {
   PageGenerator(
     name: "const",
