@@ -26,9 +26,9 @@ If you need a static site generator and are not afraid of writing Gleam code, gi
 
 Glicine site generation pipeline is based on 4 main steps. Here's an overview of the process:
 
-1. First it reads all markdown files from a given directory and turns them into posts (more on posts [here](#TODO))
-2. Then one can specify a custom criteria to filter out posts from the site generation pipeline (more on posts filtering [here](#TODO))
-3. The leftover posts are turned into site pages using custom generators. This is the core of the whole site generation process, there can be as many generators as needed each taking care of a specific aspect of the final site (more on how to use and define custom page generators [here](#TODO))
+1. First it reads all markdown files from a given directory and turns them into posts (more on posts [here](#user-content-posts))
+2. Then one can specify a custom criteria to filter out posts from the site generation pipeline (more on posts filtering [here](#user-content-filtering))
+3. The leftover posts are turned into site pages using custom generators. This is the core of the whole site generation process, there can be as many generators as needed each taking care of a specific aspect of the final site (more on how to use and define custom page generators [here](#user-content-generators))
 4. All the generated pages are then saved in a given output directory
 
 If you, like me, love unecessary ascii art graphs, here's the Glicine site generation pipeline:
@@ -113,11 +113,13 @@ fn drop_draft(post: Post) -> Keep {
 
 This filter checks if the post has a metadata `draft` set to `"true"`, if it does then the post is dropped.
 
-- [ ] TODO: the `filter` module could expose some filters that could be useful like the drop drafts one
+TODO:
+
+- [ ] the `filter` module could expose some filters that could be useful like the drop drafts one
 
 ### Generators
 
-TODO: 
+TODO:
 - [ ] explain how a generator works
 - [ ] explain the different possible errors
 - [ ] show a couple examples! Once I've written my own generators the examples could be:
