@@ -1,7 +1,5 @@
-import gleam/int
-import gleam/function
 import glacier/should
-import glicine/extra/list.{Drop, Keep} as list_extra
+import glicine/extra/list as list_extra
 import glicine/extra/result as result_extra
 import glicine/extra/path
 
@@ -53,25 +51,6 @@ pub fn all_errors_test() {
   |> result_extra.partition
   |> should.be_error
   |> should.equal(["a", "b", "c"])
-}
-
-pub fn list_keep_test() {
-  [1, 2, 3, 4]
-  |> list_extra.keep(function.constant(Drop))
-  |> should.equal([])
-
-  [1, 2, 3, 4]
-  |> list_extra.keep(function.constant(Keep))
-  |> should.equal([1, 2, 3, 4])
-
-  [1, 2, 3, 4]
-  |> list_extra.keep(fn(n) {
-    case int.is_even(n) {
-      True -> Drop
-      False -> Keep
-    }
-  })
-  |> should.equal([1, 3])
 }
 
 pub fn duplicates_test() {

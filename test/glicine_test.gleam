@@ -3,8 +3,8 @@ import glacier/should
 import gleam/erlang/file
 import gleam/result
 import glicine.{PostsGenerationStepFailed}
-import glicine/extra/list.{Keep} as list_extra
 import glicine/extra/directory
+import glicine/filter.{Keep}
 import glicine/page.{Page, PageGenerator}
 import glicine/post.{CannotListPostsDirectory}
 import nakai/html

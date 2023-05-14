@@ -6,11 +6,12 @@ import gleam/io
 import gleam/list
 import gleam/result
 import gleam/string_builder.{StringBuilder} as sb
-import glicine/extra/list.{Keep} as list_extra
+import glicine/extra/list as list_extra
 import glicine/extra/path
 import glicine/extra/result as result_extra
 import glicine/extra/string as string_extra
 import glicine/extra/style
+import glicine/filter.{Keep}
 import glicine/page.{Page, PageGenerationError, PageGenerator}
 import glicine/post.{Post, PostGenerationError}
 import nakai/html
@@ -49,7 +50,7 @@ pub fn make_site(
     map_error: PostsGenerationStepFailed,
   )
   report_read_posts(all_posts, posts_directory)
-  let posts = list_extra.keep(all_posts, with: filter)
+  let posts = filter.keep(all_posts, with: filter)
   report_filtered_posts(posts)
   use pages <- result_extra.try(
     page.from_posts(posts, with: generators),
@@ -202,10 +203,8 @@ pub fn main() {
         name: "TestGenerator",
         generator: fn(_) {
           Ok([
-            Page(name: "page1", path: "pages", body: html.p_text([], "hell!")),
-            Page(name: "page1", path: "pages", body: html.Nothing),
-            Page(name: "page2", path: "page", body: html.p_text([], "hell!")),
-            Page(name: "page2", path: "page", body: html.Nothing),
+            Page(name: "page1", path: "pages", body: html.p_text([], "hello!")),
+            Page(name: "page2", path: "pages", body: html.p_text([], "hello!")),
           ])
         },
       ),
