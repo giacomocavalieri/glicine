@@ -128,3 +128,7 @@ TODO:
   - [ ] A generator that ignores the posts and builds an about page that is always the same
 
 For now it doesn't really make sense to write the whole tutorial as I still need to figure out what could be improved with the current generators design, sorry for the imcomplete readme!
+
+## Why the name Glicine?
+
+Glicine (/ˈɡlit͡ʃine/) is the italian word for wisteria. In the Gleam ecosystem there's a lot of packages whose name starts with "gl-" and I do love wisteria so I decided to go with that name!
