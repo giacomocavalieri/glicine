@@ -68,6 +68,51 @@ pub type PageGenerationError {
   CannotCreatePageDirectory(page: Page, reason: file.Reason)
 }
 
+/// TODO: add doc
+///
+pub fn from_posts(
+  posts: List(Post),
+  with generators: List(PageGenerator),
+) -> Result(List(Page), List(PageGenerationError)) {
+  generators
+  |> list.map(fn(generator) { generator.generator(posts) })
+  |> result_extra.partition
+  |> result.map(list.flatten)
+}
+
+/// TODO: add doc
+///
+pub fn write_all(
+  pages: List(Page),
+  to output_directory: String,
+) -> Result(Nil, List(PageGenerationError)) {
+  list.map(pages, write_page(_, to: output_directory))
+  |> result_extra.partition
+  |> result.replace(Nil)
+}
+
+fn write_page(
+  page: Page,
+  to output_directory: String,
+) -> Result(Nil, PageGenerationError) {
+  let full_path =
+    output_directory
+    |> path.concat(page.path)
+
+  let page_file =
+    full_path
+    |> path.concat(page.name)
+    |> path.add_extension("html")
+
+  use _ <- result_extra.try(
+    directory.make(full_path),
+    map_error: CannotCreatePageDirectory(page, _),
+  )
+
+  file.write(to: page_file, contents: nakai.to_string(page.body))
+  |> result.map_error(CannotSavePage(page, _))
+}
+
 /// TODO
 ///
 pub fn error_to_string_builder(error: PageGenerationError) -> StringBuilder {
@@ -143,69 +188,4 @@ pub fn error_to_string_builder(error: PageGenerationError) -> StringBuilder {
         _ -> sb.to_string(report.default_file_reason(reason))
       })
   }
-}
-
-/// TODO: WIP
-/// It calls each generator with the provided list of posts and
-/// accumulates all the generated pages in a single list.
-///
-pub fn from_posts(
-  posts: List(Post),
-  with generators: List(PageGenerator),
-) -> Result(List(Page), List(PageGenerationError)) {
-  generators
-  |> list.map(fn(generator) { generator.generator(posts) })
-  |> result_extra.partition
-  |> result.map(list.flatten)
-}
-
-// TODO: this doesn't belong here, it should be at a higher step!
-// fn check_duplicate_names(pages: List(Page)) -> Result(List(Page), Reason) {
-//   let duplicated_names =
-//     pages
-//     |> list.map(fn(page) { page.name })
-//     |> utils.duplicates
-// 
-//   case duplicated_names {
-//     [] -> Ok(pages)
-//     _ ->
-//       [DuplicateNamesError(duplicated_names)]
-//       |> PageGenerationStepFailed
-//       |> Error
-//   }
-// }
-
-/// TODO: WIP
-/// Add doc
-///
-pub fn write_all(
-  pages: List(Page),
-  to output_directory: String,
-) -> Result(Nil, List(PageGenerationError)) {
-  list.map(pages, write_page(_, to: output_directory))
-  |> result_extra.partition
-  |> result.replace(Nil)
-}
-
-fn write_page(
-  page: Page,
-  to output_directory: String,
-) -> Result(Nil, PageGenerationError) {
-  let full_path =
-    output_directory
-    |> path.concat(page.path)
-
-  let page_file =
-    full_path
-    |> path.concat(page.name)
-    |> path.add_extension("html")
-
-  use _ <- result_extra.try(
-    directory.make(full_path),
-    map_error: CannotCreatePageDirectory(page, _),
-  )
-
-  // TODO: Depending on the HTML library there should be a way to turn it into a string
-  file.write(to: page_file, contents: nakai.to_string(page.body))
-  |> result.map_error(CannotSavePage(page, _))
 }

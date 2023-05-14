@@ -1,9 +1,10 @@
-//// This module exposes the [`read`](#read) function. It is used to
+//// This module exposes the [`read_all`](#read_all) function. It is used to
 //// read markdown files as blog posts to be used for the static
-//// website generation.
+//// site generation.
 ////
 //// To get a better insight of how the blog generation pipeline
-//// works you can find a more detailed explanation in the [README](TODO).
+//// works you can find a more detailed explanation in the project's
+//// [README](https://github.com/giacomocavalieri/glicine).
 ////
 
 import gleam/erlang/file
@@ -20,7 +21,7 @@ import nakai/html
 
 /// A blog post: it has a `name` (tipically it is the name of the file
 /// from which the post's body was read), an Html `body` and additional
-/// metadata in the form of a map of strings.
+/// `metadata` in the form of a map of strings.
 ///
 pub type Post {
   Post(name: String, metadata: Map(String, String), body: html.Node(Nil))
@@ -48,38 +49,6 @@ pub type PostGenerationError {
   /// TODO: depending on the library used, it should wrap the decoding error.
   ///
   InvalidMarkdown(file: String)
-}
-
-/// TODO
-///
-pub fn error_to_string_builder(error: PostGenerationError) -> StringBuilder {
-  case error {
-    CannotListPostsDirectory(directory, reason) ->
-      sb.new()
-      |> sb.append("I cannot read the posts in ")
-      |> sb.append(style.path(directory))
-      |> sb.append(" ")
-      |> sb.append(case reason {
-        file.Enoent -> "because it doesn't exists"
-        file.Eacces -> "because I don't have the needed permission"
-        file.Enotdir -> "because it is not a directory"
-        _ -> sb.to_string(report.default_file_reason(reason))
-      })
-
-    CannotReadFile(file, reason) ->
-      sb.new()
-      |> sb.append("I cannot read the file ")
-      |> sb.append(style.path(file))
-      |> sb.append(" ")
-      |> sb.append(case reason {
-        file.Enoent -> "because it doesn't exists"
-        file.Eacces -> "because I don't have the needed permission"
-        _ -> sb.to_string(report.default_file_reason(reason))
-      })
-
-    InvalidMetadata(_file) -> todo("Invalid metadata")
-    InvalidMarkdown(_file) -> todo("Invalid markdown")
-  }
 }
 
 /// Reads the content of all `.md` files in the given directory (the 
@@ -126,4 +95,36 @@ fn file_to_post(file: String) -> Result(Post, PostGenerationError) {
   // markdown -> HTML    (invalid markdown)
   Post(name: name, metadata: map.new(), body: html.Nothing)
   |> Ok
+}
+
+/// TODO
+///
+pub fn error_to_string_builder(error: PostGenerationError) -> StringBuilder {
+  case error {
+    CannotListPostsDirectory(directory, reason) ->
+      sb.new()
+      |> sb.append("I cannot read the posts in ")
+      |> sb.append(style.path(directory))
+      |> sb.append(" ")
+      |> sb.append(case reason {
+        file.Enoent -> "because it doesn't exists"
+        file.Eacces -> "because I don't have the needed permission"
+        file.Enotdir -> "because it is not a directory"
+        _ -> sb.to_string(report.default_file_reason(reason))
+      })
+
+    CannotReadFile(file, reason) ->
+      sb.new()
+      |> sb.append("I cannot read the file ")
+      |> sb.append(style.path(file))
+      |> sb.append(" ")
+      |> sb.append(case reason {
+        file.Enoent -> "because it doesn't exists"
+        file.Eacces -> "because I don't have the needed permission"
+        _ -> sb.to_string(report.default_file_reason(reason))
+      })
+
+    InvalidMetadata(_file) -> todo("Invalid metadata")
+    InvalidMarkdown(_file) -> todo("Invalid markdown")
+  }
 }

@@ -1,4 +1,5 @@
-//// todo:
+//// This module exposes the `keep` method used to drop elements from a list
+//// based on the result of a predicate that returns either `Keep` or `Drop`.
 ////
 
 import gleam/list

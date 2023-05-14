@@ -14,7 +14,6 @@ import glicine/extra/style
 import glicine/filter.{Keep}
 import glicine/page.{Page, PageGenerationError, PageGenerator}
 import glicine/post.{Post, PostGenerationError}
-import nakai/html
 
 /// The reason why one of the blog generation steps may fail.
 ///
