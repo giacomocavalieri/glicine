@@ -84,7 +84,8 @@ fn files_to_posts(
 ) -> Result(List(Post), List(PostGenerationError)) {
   files
   |> list.map(file_to_post)
-  |> result_extra.partition
+  |> result.partition
+  |> result_extra.from_partition
 }
 
 fn file_to_post(file: String) -> Result(Post, PostGenerationError) {

@@ -23,7 +23,8 @@ pub fn make(path: String) -> Result(Nil, file.Reason) {
 
 fn try_make(directory) -> Result(Nil, file.Reason) {
   case file.is_directory(directory) {
-    True -> Ok(Nil)
-    False -> file.make_directory(directory)
+    Ok(True) -> Ok(Nil)
+    Ok(False) -> file.make_directory(directory)
+    Error(reason) -> Error(reason)
   }
 }

@@ -9,6 +9,6 @@ pub fn make_creates_all_subdirectories_test() {
   let is_directory = file.is_directory(directory)
   use _ <- result.try(file.recursive_delete("foo_test"))
   is_directory
-  |> should.equal(True)
+  |> should.equal(Ok(True))
   Ok(Nil)
 }

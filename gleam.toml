@@ -17,7 +17,7 @@ internal_modules = [
 ]
 
 [dependencies]
-gleam_stdlib = "~> 0.28"
+gleam_stdlib = "~> 0.29"
 gleam_erlang = "~> 0.18"
 gleam_community_ansi = "~> 1.1"
 nakai = "~> 0.6"

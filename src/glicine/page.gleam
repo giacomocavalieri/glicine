@@ -76,7 +76,8 @@ pub fn from_posts(
 ) -> Result(List(Page), List(PageGenerationError)) {
   generators
   |> list.map(fn(generator) { generator.generator(posts) })
-  |> result_extra.partition
+  |> result.partition
+  |> result_extra.from_partition
   |> result.map(list.flatten)
 }
 
@@ -87,7 +88,8 @@ pub fn write_all(
   to output_directory: String,
 ) -> Result(Nil, List(PageGenerationError)) {
   list.map(pages, write_page(_, to: output_directory))
-  |> result_extra.partition
+  |> result.partition
+  |> result_extra.from_partition
   |> result.replace(Nil)
 }
 
